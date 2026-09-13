@@ -11,6 +11,6 @@ ROBLOX的搜索
 
 常用参数可通过 Koishi 的 `help` 命令查看。搜索功能使用 `apiServer` 指向 BFF；后端启用
 `BFF_ACCESS_TOKEN` 时同时配置插件的 `bffAccessToken`。Catalog 文本审核需要配置
-`textAuditAppId` 和 `textAudirobloxtToken`，缺少审核配置时文本会按 fail-closed 策略遮罩。
+`textAuditToken`，缺少审核配置时文本会按 fail-closed 策略遮罩。
 
 感谢[Koishi-plugin-smmcat-robloxservice - NPM的支持](https://www.npmjs.com/package/koishi-plugin-smmcat-robloxservice)

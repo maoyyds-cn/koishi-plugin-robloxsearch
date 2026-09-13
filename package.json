@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-robloxsearch",
   "description": "ROBLOX的搜索插件",
-  "version": "0.1.107-next",
+  "version": "1.0.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -10,12 +10,26 @@
     "client"
   ],
   "license": "MIT",
+  "homepage": "https://github.com/maoyyds-cn/koishi-plugin-robloxsearch",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maoyyds-cn/koishi-plugin-robloxsearch.git"
+  },
+  "contributors": [
+    "maoyyds-cn <admin@maoyyds.cn>"
+  ],
   "keywords": [
     "chatbot",
     "koishi",
-    "plugin"
+    "plugin",
+    "roblox",
+    "search"
   ],
   "koishi": {
+    "description": {
+      "zh": "ROBLOX 玩家信息 / 游戏服务器 / 商店商品搜索与筛选",
+      "en": "Search Roblox players, servers and catalog items"
+    },
     "public": [
       "dist"
     ]
