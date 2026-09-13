@@ -1,7 +1,7 @@
 {
-  "name": "koishi-plugin-smmcat-robloxservice",
-  "description": "ROBLOX的API服务[自用]",
-  "version": "0.1.106",
+  "name": "koishi-plugin-robloxsearch",
+  "description": "ROBLOX的搜索插件",
+  "version": "0.1.107-next",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
