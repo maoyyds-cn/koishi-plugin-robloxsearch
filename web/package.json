@@ -1,0 +1,17 @@
+{
+  "name": "roblox-image-proxy",
+  "version": "1.0.0",
+  "description": "图床代理服务：转发外部图片到本地存储并返回公网地址，兼容 smmcat-robloxservice 的 imageHosting 调用",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

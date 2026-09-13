@@ -1,0 +1,32 @@
+[Unit]
+Description=Roblox Image Hosting Proxy (图床代理服务)
+Documentation=https://github.com/yourname/koishi-plugin-smmcat-robloxservice
+# 网络服务需要等网络就绪后再启动
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# 运行服务的工作目录 = 放 server.js 和 .env 的那个 web 目录（改成你的实际路径）
+WorkingDirectory=/opt/roblox-image-proxy
+# 用 node 启动；先执行 `which node` 确认 node 的绝对路径，替换下面这行
+ExecStart=/usr/bin/node server.js
+
+# 崩溃/退出后自动重启
+Restart=always
+RestartSec=3
+
+# 生产环境变量（dotenv 会额外读取 cwd 下的 .env，优先级低于这里）
+Environment=NODE_ENV=production
+
+# 以哪个用户运行。为了安全建议专门建一个低权限用户，例如：
+#   useradd -r -s /usr/sbin/nologin roblox-proxy
+#   并给该用户分配 web 目录和 uploads 目录的写权限
+# User=roblox-proxy
+# Group=roblox-proxy
+
+# 日志输出到 journald（查看：journalctl -u roblox-image-proxy -f）
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
