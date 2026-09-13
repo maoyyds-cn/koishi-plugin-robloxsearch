@@ -289,6 +289,80 @@ git clone https://github.com/maoyyds-cn/koishi-plugin-robloxsearch.git
 
 > 搜索类（商店物品搜索 / Limited 搜索 / 游戏服务器搜索 / 物品价格趋势）通过查询结果中的按钮与分页令牌交互，结果会以内联键盘提供「上一页 / 下一页」等操作。
 
+## 图床代理（可选）
+
+插件默认直接引用 Roblox 官方 CDN 的图片，但部分部署环境下（尤其国内访问）Roblox 图片可能加载失败或触发防盗链。可选的**图床代理服务**会把外部图片下载到你的服务器并返回本地公网地址，保证 QQ 端图片稳定展示。
+
+代理服务源码位于仓库的 `web/` 目录，与插件解耦、独立部署：
+
+```
+web/
+├── server.js                  # 代理服务本体（Node.js + Express，Node >= 18）
+├── .env.example               # 环境变量配置模板
+├── package.json
+└── roblox-image-proxy.service # systemd 守护单元
+```
+
+### 接口协议
+
+与插件 `imageHosting` 完全对齐：
+
+- `POST /proxy/image`，请求体 `{ "url": "<原始图片URL>" }`
+  - 成功：`{ "code": 0, "localUrl": "<转存后的公网地址>" }`
+  - 失败：`{ "code": 1, "error": "<错误信息>" }`（仍返回 HTTP 200）
+- `GET /healthz` → `{ "ok": true }`
+- `GET /uploads/*` → 静态托管转存后的图片
+
+### 部署步骤
+
+```bash
+cd web
+npm install
+cp .env.example .env   # 按需修改，PUBLIC_BASE_URL 必填公网可访问地址
+npm start              # 默认监听 0.0.0.0:3682
+```
+
+### 环境变量
+
+| 变量 | 说明 | 默认 |
+| --- | --- | --- |
+| `PORT` | 监听端口 | `3682` |
+| `HOST` | 监听地址 | `0.0.0.0` |
+| `PUBLIC_BASE_URL` | 对外可访问基础地址（拼接 `localUrl` 用），公网部署必须改成你的域名/公网地址 | `http://127.0.0.1:3682` |
+| `AUTH_TOKEN` | 鉴权 token，设置后请求须带 `Authorization: Bearer <token>`；留空则不鉴权 | 空 |
+| `ALLOWED_HOSTS` | 允许转存的目标域名白名单（逗号分隔），留空则允许任意公网域名 | 空 |
+| `MAX_SIZE_MB` | 单张图片大小上限（MB） | `10` |
+| `KEEP_HOURS` | 图片保留时长（小时），超时自动清理 | `24` |
+| `RATE_PER_MIN` | 每分钟每 IP 请求上限 | `60` |
+
+### systemd 守护
+
+把 `web/roblox-image-proxy.service` 里的 `WorkingDirectory` 和 `ExecStart`（node 绝对路径，用 `which node` 查询）改成实际值后：
+
+```bash
+sudo cp web/roblox-image-proxy.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now roblox-image-proxy
+
+systemctl status roblox-image-proxy           # 查看状态
+journalctl -u roblox-image-proxy -f           # 查看日志
+curl -s http://127.0.0.1:3682/healthz         # 本机自测，应返回 {"ok":true}
+```
+
+### 关联插件配置
+
+部署完成后，在插件配置面板填：
+
+| 配置项 | 说明 |
+| --- | --- |
+| `imageProxyUrl` | 代理服务基础地址，如 `http://103.36.221.127:3682/`（**不要**带 `/proxy/image`，插件会自动拼接） |
+| `imageProxyToken` | 若代理 `AUTH_TOKEN` 已设置，此处填相同值；否则留空 |
+
+### 安全提示
+
+- 公网部署强烈建议设置 `AUTH_TOKEN`，并通过 Nginx 反代仅暴露本服务、启用 HTTPS。
+- 服务内置防 SSRF（拦截内网/保留 IP）、仅限图片类型、魔数嗅探、按 URL 哈希去重、过期自动清理等能力；设置 `ALLOWED_HOSTS` 白名单可进一步收紧可代理来源。
+
 ## 许可
 
 MIT
