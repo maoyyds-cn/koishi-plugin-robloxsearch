@@ -27,7 +27,7 @@
   ],
   "koishi": {
     "description": {
-      "zh": "ROBLOX 玩家信息 / 游戏服务器 / 商店商品搜索与筛选",
+      "zh": "ROBLOX玩家信息查询",
       "en": "Search Roblox players, servers and catalog items"
     },
     "public": [
