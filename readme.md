@@ -50,11 +50,11 @@ git clone https://github.com/maoyyds-cn/koishi-plugin-robloxsearch.git
 
 插件运行依赖以下 Koishi 服务，请确保已启用对应插件：
 
-| 服务 | 提供插件 |
-| --- | --- |
-| `database` | 任意数据库插件（如 `@koishijs/plugin-database-sqlite`、`database-mysql` 等） |
+| 服务             | 提供插件                                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------------- |
+| `database`     | 任意数据库插件（如 `@koishijs/plugin-database-sqlite`、`database-mysql` 等）                                     |
 | `localstorage` | [koishi-plugin-smmcat-localstorage](https://www.npmjs.com/package/koishi-plugin-smmcat-localstorage) |
-| `monetary` | [koishi-plugin-monetary](https://www.npmjs.com/package/koishi-plugin-monetary) |
+| `monetary`     | [koishi-plugin-monetary](https://www.npmjs.com/package/koishi-plugin-monetary)                       |
 
 ### npm 依赖
 
@@ -71,105 +71,105 @@ git clone https://github.com/maoyyds-cn/koishi-plugin-robloxsearch.git
 
 ### 基础与调试
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `deBug` | 日志查看更多信息 | `false` |
-| `useMd` | 使用原生 Markdown 写法（QQ 端） | `false` |
-| `basePath` | 配置文件地址 | `roblox` |
+| 配置项        | 说明                     | 默认       |
+| ---------- | ---------------------- | -------- |
+| `deBug`    | 日志查看更多信息               | `false`  |
+| `useMd`    | 使用原生 Markdown 写法（QQ 端） | `false`  |
+| `basePath` | 配置文件地址                 | `roblox` |
 
 ### 网络与 API
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `apiServer` | 自定义 API 服务器地址（留空使用官方 Roblox 接口） | `` |
-| `useProxyServer` | 经 `rotunnel.com` 代理访问 Roblox API（关闭则直连） | `true` |
-| `bffAccessToken` | BFF 后端 `x-bff-token` 鉴权（后端未启用鉴权时留空） | ``（secret） |
+| 配置项              | 说明                                      | 默认           |
+| ---------------- | --------------------------------------- | ------------ |
+| `apiServer`      | 自定义 API 服务器地址（留空使用官方 Roblox 接口）         | \`\`         |
+| `useProxyServer` | 经 `rotunnel.com` 代理访问 Roblox API（关闭则直连） | `true`       |
+| `bffAccessToken` | BFF 后端 `x-bff-token` 鉴权（后端未启用鉴权时留空）     | \`\`（secret） |
 
 ### 签到与欢迎
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `useSignin` | 开启每日签到 | `true` |
-| `useWelcome` | 开启进群欢迎 | `true` |
+| 配置项                             | 说明         | 默认          |
+| ------------------------------- | ---------- | ----------- |
+| `useSignin`                     | 开启每日签到     | `true`      |
+| `useWelcome`                    | 开启进群欢迎     | `true`      |
 | `signinGetMin` / `signinGetMax` | 签到获得 R 点区间 | `10` / `20` |
 
 ### 积分 / 经验 / 等级
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `useExpSystem` | 开启经验 / 等级体系 | `true` |
-| `dailyQueryExpCap` | 每日计经验的查询次数上限 | `5` |
-| `signinExp` | 每日签到获得经验 | `5` |
-| `pointsPerExp` | 兑换 1 经验所需 R 点 | `5` |
-| `dailyConvertExpCap` | 每日兑换经验上限（0=不限） | `0` |
-| `levelUpRewardPoints` | 每升 1 级奖励 R 点 | `100` |
+| 配置项                   | 说明             | 默认     |
+| --------------------- | -------------- | ------ |
+| `useExpSystem`        | 开启经验 / 等级体系    | `true` |
+| `dailyQueryExpCap`    | 每日计经验的查询次数上限   | `5`    |
+| `signinExp`           | 每日签到获得经验       | `5`    |
+| `pointsPerExp`        | 兑换 1 经验所需 R 点  | `5`    |
+| `dailyConvertExpCap`  | 每日兑换经验上限（0=不限） | `0`    |
+| `levelUpRewardPoints` | 每升 1 级奖励 R 点   | `100`  |
 
 ### 查询限流
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `rateLimitPerMin` | 每分钟查询限流次数 | `20` |
+| 配置项                | 说明        | 默认    |
+| ------------------ | --------- | ----- |
+| `rateLimitPerMin`  | 每分钟查询限流次数 | `20`  |
 | `rateLimitPerHour` | 每小时查询限流次数 | `200` |
 
 ### 翻译
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
+| 配置项            | 说明     | 默认     |
+| -------------- | ------ | ------ |
 | `useTranslate` | 开启自动翻译 | `true` |
 
 ### 权限名单
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `developerList` | 开发者名单（最高权限） | `[]` |
-| `adminList` | 管理员名单 | `[]` |
-| `assistAdminList` | 协助管理员名单（审核 + 风控调整） | `[]` |
-| `sponsorList` | 赞助用户名单（身份外显） | `[]` |
-| `foreverBanList` | 永久禁止使用名单 | `[]` |
-| `delGetUserIdList` | 禁止指向查找的用户 ID | `[]` |
-| `riskAdminList` | （旧字段，兼容保留，建议迁移到 `assistAdminList`） | `[]` |
+| 配置项                | 说明                                 | 默认   |
+| ------------------ | ---------------------------------- | ---- |
+| `developerList`    | 开发者名单（最高权限）                        | `[]` |
+| `adminList`        | 管理员名单                              | `[]` |
+| `assistAdminList`  | 协助管理员名单（审核 + 风控调整）                 | `[]` |
+| `sponsorList`      | 赞助用户名单（身份外显）                       | `[]` |
+| `foreverBanList`   | 永久禁止使用名单                           | `[]` |
+| `delGetUserIdList` | 禁止指向查找的用户 ID                       | `[]` |
+| `riskAdminList`    | （旧字段，兼容保留，建议迁移到 `assistAdminList`） | `[]` |
 
 ### 风控
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `useRiskControl` | 开启风控系统 | `true` |
-| `violationLibTTL` | 违规库目标有效期（天） | `365` |
-| `riskKeywords` | 风控敏感词补充 | `[]` |
-| `banMsg` | 风控限制提示文案 | 见下 |
+| 配置项               | 说明          | 默认     |
+| ----------------- | ----------- | ------ |
+| `useRiskControl`  | 开启风控系统      | `true` |
+| `violationLibTTL` | 违规库目标有效期（天） | `365`  |
+| `riskKeywords`    | 风控敏感词补充     | `[]`   |
+| `banMsg`          | 风控限制提示文案    | 见下     |
 
 ### 审核（文本 / 图片）
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `useTextAudit` | 开启文本审核（UApiPro 敏感词检测） | `true` |
-| `textAuditToken` | UApiPro 文本审核 Bearer Token | ``（secret） |
-| `useImageAudit` | 开启图像审核 | `true` |
-| `useFreeExamine` | 使用免费的内容审核 | `false` |
-| `isExamine` | 开启腾讯云不良内容审核 | `false` |
-| `tencentSecretId` / `tencentSecretKey` | 腾讯云密钥（CI 审核） | `` |
-| `tencentBucket` / `tencentRegion` | 腾讯云 COS 存储桶 / 地域 | `` / `ap-hongkong` |
+| 配置项                                    | 说明                        | 默认                   |
+| -------------------------------------- | ------------------------- | -------------------- |
+| `useTextAudit`                         | 开启文本审核（UApiPro 敏感词检测）     | `true`               |
+| `textAuditToken`                       | UApiPro 文本审核 Bearer Token | \`\`（secret）         |
+| `useImageAudit`                        | 开启图像审核                    | `true`               |
+| `useFreeExamine`                       | 使用免费的内容审核                 | `false`              |
+| `isExamine`                            | 开启腾讯云不良内容审核               | `false`              |
+| `tencentSecretId` / `tencentSecretKey` | 腾讯云密钥（CI 审核）              | \`\`                 |
+| `tencentBucket` / `tencentRegion`      | 腾讯云 COS 存储桶 / 地域          | \`\` / `ap-hongkong` |
 
 ### 图床代理
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `imageProxyUrl` | 图床代理服务地址（留空则直连原图、不经过代理） | `` |
-| `imageProxyToken` | 图床代理鉴权 token（服务端未开启鉴权时留空） | ``（secret） |
+| 配置项               | 说明                        | 默认           |
+| ----------------- | ------------------------- | ------------ |
+| `imageProxyUrl`   | 图床代理服务地址（留空则直连原图、不经过代理）   | \`\`         |
+| `imageProxyToken` | 图床代理鉴权 token（服务端未开启鉴权时留空） | \`\`（secret） |
 
 ### 公告 / 社群
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
-| `useAnnouncement` | 开启公告系统 | `true` |
-| `useCommunityList` | 开启社群推荐列表 | `false` |
-| `communityDataPath` | 社群列表 JSON 路径（留空用 `data/communities.json`） | `` |
-| `globalAdv` | 全局小广告 | `` |
+| 配置项                 | 说明                                        | 默认      |
+| ------------------- | ----------------------------------------- | ------- |
+| `useAnnouncement`   | 开启公告系统                                    | `true`  |
+| `useCommunityList`  | 开启社群推荐列表                                  | `false` |
+| `communityDataPath` | 社群列表 JSON 路径（留空用 `data/communities.json`） | \`\`    |
+| `globalAdv`         | 全局小广告                                     | \`\`    |
 
 ### 存储
 
-| 配置项 | 说明 | 默认 |
-| --- | --- | --- |
+| 配置项           | 说明            | 默认      |
+| ------------- | ------------- | ------- |
 | `useDatabase` | 使用数据库（否则本地存储） | `false` |
 
 ## 命令
@@ -178,117 +178,121 @@ git clone https://github.com/maoyyds-cn/koishi-plugin-robloxsearch.git
 
 ### 查询类
 
-| 命令 | 说明 |
-| --- | --- |
-| `roblox/菜单` | 打开服务中心菜单 |
-| `roblox/用户名搜索 <username>` | 按用户名查询玩家 |
-| `roblox/用户ID搜索 <userId:number>` | 按用户 ID 查询 |
-| `roblox/查询用户曾用名 <username>` | 查询用户曾用名 |
-| `roblox/获取用户头像 <username>` | 获取用户头像 |
-| `roblox/游戏名搜索 <keyword:text>` | 按名称搜索游戏 |
-| `roblox/游戏名精确搜索 <keyword:text>` | 按名称精确搜索游戏 |
+| 命令                               | 说明              |
+| -------------------------------- | --------------- |
+| `roblox/菜单`                      | 打开服务中心菜单        |
+| `roblox/用户名搜索 <username>`        | 按用户名查询玩家        |
+| `roblox/用户ID搜索 <userId:number>`  | 按用户 ID 查询       |
+| `roblox/查询用户曾用名 <username>`      | 查询用户曾用名         |
+| `roblox/获取用户头像 <username>`       | 获取用户头像          |
+| `roblox/游戏名搜索 <keyword:text>`    | 按名称搜索游戏         |
+| `roblox/游戏名精确搜索 <keyword:text>`  | 按名称精确搜索游戏       |
 | `roblox/游戏ID搜索 <placeId:number>` | 按 Place ID 查询游戏 |
-| `roblox/群组名搜索 <groupName:text>` | 按名称搜索群组 |
-| `roblox/群组ID搜索 <groupid>` | 按 ID 查询群组 |
-| `roblox/获取群组图标 <groupName>` | 获取群组图标 |
-| `roblox/获取好友列表 <userId:number>` | 获取好友列表 |
-| `roblox/获取关注列表 <userId:number>` | 获取关注列表 |
-| `roblox/获取粉丝列表 <userId:number>` | 获取粉丝列表 |
+| `roblox/群组名搜索 <groupName:text>`  | 按名称搜索群组         |
+| `roblox/群组ID搜索 <groupid>`        | 按 ID 查询群组       |
+| `roblox/获取群组图标 <groupName>`      | 获取群组图标          |
+| `roblox/获取好友列表 <userId:number>`  | 获取好友列表          |
+| `roblox/获取关注列表 <userId:number>`  | 获取关注列表          |
+| `roblox/获取粉丝列表 <userId:number>`  | 获取粉丝列表          |
 
 ### 账号绑定
 
-| 命令 | 说明 |
-| --- | --- |
+| 命令                           | 说明           |
+| ---------------------------- | ------------ |
 | `roblox/绑定Roblox账号 <userId>` | 绑定 Roblox 账号 |
-| `roblox/查看绑定` | 查看当前绑定 |
-| `roblox/解除绑定` | 解除绑定 |
-| `roblox/绑定统计` | 绑定统计 |
+| `roblox/查看绑定`                | 查看当前绑定       |
+| `roblox/解除绑定`                | 解除绑定         |
+| `roblox/绑定统计`                | 绑定统计         |
 
 ### 积分 / 等级 / 签到
 
-| 命令 | 说明 |
-| --- | --- |
-| `roblox/签到` | 每日签到 |
-| `roblox/积分` | 查看积分 |
-| `roblox/等级` | 查看等级 |
-| `roblox/积分排行榜` | 积分排行榜 |
-| `roblox/流水 [ledger]` | 查看积分流水 |
+| 命令                         | 说明      |
+| -------------------------- | ------- |
+| `roblox/签到`                | 每日签到    |
+| `roblox/积分`                | 查看积分    |
+| `roblox/等级`                | 查看等级    |
+| `roblox/积分排行榜`             | 积分排行榜   |
+| `roblox/流水 [ledger]`       | 查看积分流水  |
 | `roblox/兑换经验 <exp:number>` | R 点兑换经验 |
 
 ### 兑换码
 
-| 命令 | 说明 |
-| --- | --- |
-| `roblox/兑换码 <giftCode>` | 兑换兑换码 |
-| `roblox/查询兑换码 <giftCode>` | 查询兑换码 |
+| 命令                                                                | 说明         |
+| ----------------------------------------------------------------- | ---------- |
+| `roblox/兑换码 <giftCode>`                                           | 兑换兑换码      |
+| `roblox/查询兑换码 <giftCode>`                                         | 查询兑换码      |
 | `roblox/添加兑换码 <giftCode> <currency> <total> <validityDay> <note>` | 添加兑换码（管理员） |
 
 ### 音乐与翻译
 
-| 命令 | 说明 |
-| --- | --- |
+| 命令                 | 说明           |
+| ------------------ | ------------ |
 | `roblox/随机TOP音乐ID` | 随机 TOP 音乐 ID |
-| `roblox/开启翻译` | 开启自动翻译 |
-| `roblox/关闭翻译` | 关闭自动翻译 |
+| `roblox/开启翻译`      | 开启自动翻译       |
+| `roblox/关闭翻译`      | 关闭自动翻译       |
 
 ### 个人信息
 
-| 命令 | 说明 |
-| --- | --- |
+| 命令            | 说明     |
+| ------------- | ------ |
 | `roblox/我的信息` | 查看我的信息 |
 
 ### 社群
 
-| 命令 | 说明 |
-| --- | --- |
+| 命令                  | 说明     |
+| ------------------- | ------ |
 | `roblox/ROBLOX社群列表` | 查看社群列表 |
-| `roblox/社群推荐` | 社群推荐 |
-| `roblox/报名推荐社群` | 报名推荐社群 |
-| `roblox/刷新社群列表` | 刷新社群列表 |
+| `roblox/社群推荐`       | 社群推荐   |
+| `roblox/报名推荐社群`     | 报名推荐社群 |
+| `roblox/刷新社群列表`     | 刷新社群列表 |
 
 ### 管理员 / 权限（需管理员及以上）
 
-| 命令 | 说明 |
-| --- | --- |
-| `roblox/添加管理员 <userId>` | 添加管理员 |
-| `roblox/删除管理员 <userId>` | 删除管理员 |
+| 命令                                    | 说明          |
+| ------------------------------------- | ----------- |
+| `roblox/添加管理员 <userId>`               | 添加管理员       |
+| `roblox/删除管理员 <userId>`               | 删除管理员       |
 | `roblox/增减R点 <userId> <delta:number>` | 增减 R 点（开发者） |
-| `roblox/增减经验 <userId> <delta:number>` | 增减经验（开发者） |
-| `roblox/设定等级 <userId> <level:number>` | 设定等级（开发者） |
+| `roblox/增减经验 <userId> <delta:number>` | 增减经验（开发者）   |
+| `roblox/设定等级 <userId> <level:number>` | 设定等级（开发者）   |
 
 ### 风控 / 违规（需管理员及以上）
 
-| 命令 | 说明 |
-| --- | --- |
-| `roblox/给予风控限制 <userId>` | 给予风控限制（别名 `给予封禁`） |
-| `roblox/给予长期风控 <userId>` | 给予长期风控（别名 `给予永封`） |
-| `roblox/解除风控限制 <userId>` | 解除风控限制（别名 `给予解封`） |
-| `roblox/解除风控 <userId>` | 解除风控 |
-| `roblox/调整风控等级 <userId> <level> [days:number]` | 调整风控等级 |
-| `roblox/风控状态 <userId>` | 查看风控状态 |
-| `roblox/违规添加 <targetId> <targetType> [name] [reason:text]` | 添加违规 |
-| `roblox/违规移除 <targetId> <targetType>` | 移除违规 |
+| 命令                                                         | 说明                |
+| ---------------------------------------------------------- | ----------------- |
+| `roblox/给予风控限制 <userId>`                                   | 给予风控限制（别名 `给予封禁`） |
+| `roblox/给予长期风控 <userId>`                                   | 给予长期风控（别名 `给予永封`） |
+| `roblox/解除风控限制 <userId>`                                   | 解除风控限制（别名 `给予解封`） |
+| `roblox/解除风控 <userId>`                                     | 解除风控              |
+| `roblox/调整风控等级 <userId> <level> [days:number]`             | 调整风控等级            |
+| `roblox/风控状态 <userId>`                                     | 查看风控状态            |
+| `roblox/违规添加 <targetId> <targetType> [name] [reason:text]` | 添加违规              |
+| `roblox/违规移除 <targetId> <targetType>`                      | 移除违规              |
 
 ### 审核
 
-| 命令 | 说明 |
-| --- | --- |
-| `roblox/审核列表` | 查看审核列表 |
-| `roblox/审核处理 <id> <verdict>` | 处理审核 |
+| 命令                           | 说明     |
+| ---------------------------- | ------ |
+| `roblox/审核列表`                | 查看审核列表 |
+| `roblox/审核处理 <id> <verdict>` | 处理审核   |
 
 ### 数据 / 运维
 
-| 命令 | 说明 |
-| --- | --- |
-| `roblox/数据预览` | 数据预览 |
-| `roblox/数据导出` | 数据导出 |
-| `roblox/数据导入 [file]` | 数据导入（`--overwrite` 覆盖已有） |
-| `迁移至数据库` | 本地数据迁移至数据库（顶层命令） |
-| `roblox/操作日志 [count:number]` | 查看操作日志 |
-| `roblox/服务器状态` | 查看服务器状态 |
+| 命令                           | 说明                       |
+| ---------------------------- | ------------------------ |
+| `roblox/数据预览`                | 数据预览                     |
+| `roblox/数据导出`                | 数据导出                     |
+| `roblox/数据导入 [file]`         | 数据导入（`--overwrite` 覆盖已有） |
+| `迁移至数据库`                     | 本地数据迁移至数据库（顶层命令）         |
+| `roblox/操作日志 [count:number]` | 查看操作日志                   |
+| `roblox/服务器状态`               | 查看服务器状态                  |
 
 > 搜索类（商店物品搜索 / Limited 搜索 / 游戏服务器搜索 / 物品价格趋势）通过查询结果中的按钮与分页令牌交互，结果会以内联键盘提供「上一页 / 下一页」等操作。
 
 ## 许可
 
 MIT
+
+## 鸣谢
+
+[Koishi-plugin-smmcat-robloxservice - NPM](https://www.npmjs.com/package/koishi-plugin-smmcat-robloxservice)
