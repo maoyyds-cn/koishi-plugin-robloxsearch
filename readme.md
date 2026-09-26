@@ -293,7 +293,7 @@ git clone https://github.com/maoyyds-cn/koishi-plugin-robloxsearch.git
 
 插件默认直接引用 Roblox 官方 CDN 的图片，但部分部署环境下（尤其国内访问）Roblox 图片可能加载失败或触发防盗链。可选的**图床代理服务**会把外部图片下载到你的服务器并返回本地公网地址，保证 QQ 端图片稳定展示。
 
-代理服务源码位于仓库的 `web/` 目录，与插件解耦、独立部署：
+代理服务源码位于仓库的 `web/`(部署图床时请将/web文件夹迁至/root目录下，方便部署图床代理) 目录，与插件解耦、独立部署：
 
 ```
 web/
