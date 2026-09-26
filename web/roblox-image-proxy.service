@@ -7,7 +7,7 @@ Wants=network-online.target
 
 [Service]
 # 运行服务的工作目录 = 放 server.js 和 .env 的那个 web 目录（改成你的实际路径）
-WorkingDirectory=/opt/roblox-image-proxy
+WorkingDirectory=/root/web
 # 用 node 启动；先执行 `which node` 确认 node 的绝对路径，替换下面这行
 ExecStart=/usr/bin/node server.js
 
