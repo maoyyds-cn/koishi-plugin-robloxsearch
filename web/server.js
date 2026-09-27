@@ -3,8 +3,11 @@
 /*
  * 图床代理服务（复刻 smmcat-robloxservice 用到的 /proxy/image）
  *
- * 接口协议（与插件 lib/features/media.js 的 imageHosting 完全一致）：
- *   POST /proxy/image   请求体：{ "url": "<原始图片URL>" }
+ * 接口协议（与插件 lib/features/media.js 的 imageHosting / imageHostingBase64 完全一致）：
+ *   POST /proxy/image        请求体：{ "url": "<原始图片URL>" }
+ *     成功：{ "code": 0, "localUrl": "<转存后的公网地址>" }
+ *     失败：{ "code": 1, "error": "<错误信息>" }
+ *   POST /proxy/image-base64 请求体：{ "image": "<base64 图片内容，可带 data: URI 前缀>" }
  *     成功：{ "code": 0, "localUrl": "<转存后的公网地址>" }
  *     失败：{ "code": 1, "error": "<错误信息>" }
  *   GET  /healthz       健康检查：{ "ok": true }
@@ -156,7 +159,7 @@ async function fetchFollowingRedirects(urlObj, maxRedirects) {
 
 const app = express();
 app.disable('x-powered-by');
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '20mb' }));
 
 // 简单内存限流（按 IP）
 const rateMap = new Map();
@@ -239,6 +242,62 @@ app.post('/proxy/image', checkAuth, async (req, res) => {
     const finalPath = path.join(UPLOAD_DIR, filename);
 
     // 已存在则直接返回，避免重复下载
+    if (!fs.existsSync(finalPath)) {
+      const tmpPath = finalPath + '.tmp' + crypto.randomBytes(4).toString('hex');
+      await fsp.writeFile(tmpPath, buf);
+      await fsp.rename(tmpPath, finalPath);
+    }
+
+    return res.json({ code: 0, localUrl: `${PUBLIC_BASE_URL}/uploads/${filename}` });
+  } catch (err) {
+    return res.json({ code: 1, error: err && err.message ? err.message : '内部错误' });
+  }
+});
+
+// 直接上传 base64 图片（用于价格趋势图等由上游直接返回 base64 的场景）
+app.post('/proxy/image-base64', checkAuth, async (req, res) => {
+  try {
+    const body = req.body || {};
+    let raw = typeof body.image === 'string' ? body.image.trim() : '';
+    if (!raw) {
+      return res.json({ code: 1, error: '缺少 image 参数' });
+    }
+
+    // 兼容 data URI 前缀：data:image/png;base64,xxxx
+    const m = raw.match(/^data:[^;]+;base64,(.+)$/i);
+    if (m) {
+      raw = m[1];
+    }
+
+    // 剔除空白并做 base64 合法校验
+    const clean = raw.replace(/\s+/g, '');
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(clean) || clean.length % 4 === 1) {
+      return res.json({ code: 1, error: 'image 不是合法的 base64' });
+    }
+
+    let buf;
+    try {
+      buf = Buffer.from(clean, 'base64');
+    } catch {
+      return res.json({ code: 1, error: 'base64 解码失败' });
+    }
+    if (!buf.length) {
+      return res.json({ code: 1, error: '空图片内容' });
+    }
+    if (buf.length > MAX_SIZE) {
+      return res.json({ code: 1, error: '图片超过大小限制' });
+    }
+
+    const imageType = sniffImageType(buf);
+    if (!imageType || !EXT_BY_TYPE[imageType]) {
+      return res.json({ code: 1, error: '仅支持图片（jpg/png/gif/webp/avif/bmp/ico）' });
+    }
+    const ext = EXT_BY_TYPE[imageType];
+
+    // 用内容哈希做去重缓存
+    const filename = crypto.createHash('sha1').update(clean).digest('hex') + ext;
+    const finalPath = path.join(UPLOAD_DIR, filename);
+
     if (!fs.existsSync(finalPath)) {
       const tmpPath = finalPath + '.tmp' + crypto.randomBytes(4).toString('hex');
       await fsp.writeFile(tmpPath, buf);
