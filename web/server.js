@@ -192,6 +192,42 @@ function resolveImageType(contentType, firstChunk) {
   return null;
 }
 
+// 流式读取上游响应，累计超过上限立即中断连接并抛错。
+// 避免 arrayBuffer() 先把整个响应读进内存、之后才检查大小的做法（可被 chunked 大响应打爆进程）。
+async function readUpstreamWithLimit(upstream, maxSize) {
+  if (!upstream.body) {
+    throw new Error('上游响应无内容');
+  }
+  const reader = upstream.body.getReader();
+  const chunks = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value || !value.length) continue;
+      total += value.length;
+      // 先判超限再入数组，避免多占一份内存
+      if (total > maxSize) {
+        // 主动取消底层连接，阻止上游继续推送数据
+        await reader.cancel('image too large').catch(() => {});
+        throw new Error('图片超过大小限制');
+      }
+      chunks.push(Buffer.from(value));
+    }
+  } catch (err) {
+    // read 抛错时同样要释放连接
+    await reader.cancel(err && err.message).catch(() => {});
+    throw err;
+  } finally {
+    try { reader.releaseLock(); } catch { /* 已释放 */ }
+  }
+  if (!total) {
+    throw new Error('空图片内容');
+  }
+  return Buffer.concat(chunks, total);
+}
+
 // 处理重定向：手动跟随并逐跳校验
 async function fetchFollowingRedirects(urlObj, maxRedirects) {
   let current = urlObj;
@@ -284,19 +320,14 @@ app.post('/proxy/image', checkAuth, async (req, res) => {
       return res.json({ code: 1, error: `上游请求失败：HTTP ${upstream.status}` });
     }
 
-    // 先读内容长度做一次粗校验
+    // 先读内容长度做一次粗校验（可被 chunked 绕过，故仍需流式兜底）
     const contentLength = Number(upstream.headers.get('content-length') || 0);
     if (contentLength > MAX_SIZE) {
       return res.json({ code: 1, error: '图片超过大小限制' });
     }
 
-    const buf = Buffer.from(await upstream.arrayBuffer());
-    if (buf.length > MAX_SIZE) {
-      return res.json({ code: 1, error: '图片超过大小限制' });
-    }
-    if (!buf.length) {
-      return res.json({ code: 1, error: '空图片内容' });
-    }
+    // 流式读取，边读边判超限，超限立即 cancel，避免大响应打爆内存
+    const buf = await readUpstreamWithLimit(upstream, MAX_SIZE);
 
     const imageType = resolveImageType(upstream.headers.get('content-type'), buf);
     if (!imageType) {
