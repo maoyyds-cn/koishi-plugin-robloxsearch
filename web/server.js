@@ -70,6 +70,30 @@ function isIPv6Literal(host) {
   return net.isIPv6(host);
 }
 
+// 把 IPv6 字面量统一压缩为标准小写形式，便于前缀判断
+function normalizeIPv6(ip) {
+  return ip.toLowerCase().split('%')[0]; // 去掉 zone id（如 fe80::1%eth0）
+}
+
+// 从 IPv6 字面量中提取内嵌的 IPv4 地址，返回点分十进制或 null
+// 覆盖 ::ffff:a.b.c.d（映射）、::a.b.c.d（兼容）、64:ff9b::a.b.c.d（NAT64）
+function extractIPv4(ip) {
+  const lower = normalizeIPv6(ip);
+  // ::ffff:127.0.0.1 / ::127.0.0.1 形式
+  const embedded = lower.match(/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (embedded) return embedded[1];
+  // ::ffff:7f00:1 / ::7f00:1 形式（后 32 位为十六进制 IPv4）
+  const tail = lower.match(/:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+  if (tail) {
+    const hi = parseInt(tail[1], 16);
+    const lo = parseInt(tail[2], 16);
+    if (!Number.isNaN(hi) && !Number.isNaN(lo) && hi <= 0xffff && lo <= 0xffff) {
+      return [hi >> 8, hi & 0xff, lo >> 8, lo & 0xff].join('.');
+    }
+  }
+  return null;
+}
+
 // 判断单个 IP 是否为内网/保留地址，防止 SSRF
 function isPrivateIP(ip) {
   if (net.isIPv4(ip)) {
@@ -78,21 +102,47 @@ function isPrivateIP(ip) {
     if (a === 169 && b === 254) return true; // link-local / 云元数据 169.254.169.254
     if (a === 172 && b >= 16 && b <= 31) return true;
     if (a === 192 && b === 168) return true;
-    if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
-    if (a >= 224) return true; // 组播/保留
+    if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT 100.64.0.0/10
+    if (a === 192 && b === 0 && c === 0) return true; // IETF 协议保留 192.0.0.0/24（含 192.0.0.170 NAT64 发现）
+    if (a === 192 && b === 0 && c === 2) return true; // 文档 192.0.2.0/24
+    if (a === 198 && (b === 18 || b === 19)) return true; // 基准测试 198.18.0.0/15
+    if (a === 198 && b === 51 && c === 100) return true; // 文档 198.51.100.0/24
+    if (a === 203 && b === 0 && c === 113) return true; // 文档 203.0.113.0/24
+    if (a >= 224) return true; // 组播 224/4 + 保留 240/4
     return false;
   }
   if (net.isIPv6(ip)) {
-    const lower = ip.toLowerCase();
+    const lower = normalizeIPv6(ip);
     if (lower === '::' || lower === '::1') return true;
-    if (lower.startsWith('fe80') || lower.startsWith('fc') || lower.startsWith('fd')) return true; // ULA / 链路本地
-    if (lower.startsWith('::ffff:')) return isPrivateIP(lower.slice(7)); // IPv4 映射
+    // IPv4 映射 / 兼容 / NAT64：内嵌 IPv4 走同一套 IPv4 判定
+    if (lower.startsWith('::ffff:') || lower.startsWith('::ffff:0:')) {
+      const v4 = extractIPv4(lower);
+      if (v4) return isPrivateIP(v4);
+    }
+    if (lower === '::' || /^::[0-9a-f]{0,4}:[0-9a-f]{0,4}$/.test(lower)) {
+      const v4 = extractIPv4(lower);
+      if (v4) return isPrivateIP(v4);
+    }
+    if (lower.startsWith('64:ff9b::')) { // NAT64 转换前缀
+      const v4 = extractIPv4(lower);
+      if (v4) return isPrivateIP(v4);
+    }
+    if (lower.startsWith('fe80') || lower.startsWith('fc') || lower.startsWith('fd')) return true; // 链路本地 / ULA
+    if (lower.startsWith('fec0')) return true; // 站点本地（已废弃但仍应拦截）
+    if (lower.startsWith('ff')) return true; // 组播
+    if (lower.startsWith('2001:db8')) return true; // 文档
+    if (lower.startsWith('100:') ) return true; // 100::/64 discard-only
+    if (/^f[cd]/.test(lower)) return true; // 双保险：所有 fc/fd 开头
+    // IPv4 兼容地址：除 :: 和 ::1 外，::x.x.x.x 形式一律按内嵌 IPv4 判定
+    const compat = extractIPv4(lower);
+    if (compat && lower.startsWith('::')) return isPrivateIP(compat);
     return false;
   }
-  return true;
+  return true; // 无法识别的地址一律拦截（fail-closed）
 }
 
 // 校验一个 URL 是否安全（协议 + 域名白名单 + DNS 解析后的内网拦截）
+// 返回已校验的 IP 列表，供 fetch 的 lookup 钉住使用（防 DNS Rebinding）
 async function assertSafeUrl(u) {
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
     throw new Error('仅支持 http/https 协议');
@@ -104,11 +154,16 @@ async function assertSafeUrl(u) {
   // 解析 IP：字面量直接使用；域名走 DNS 解析
   let ips;
   if (isIPv4Literal(hostname) || isIPv6Literal(hostname)) {
-    ips = [hostname];
-  } else {
-    const records = await dns.lookup(hostname, { all: true, verbatim: true });
-    ips = records.map((r) => r.address);
+    // IPv6 字面量在 URL 中带方括号，去掉后交给 net 判定
+    const bare = hostname.replace(/^\[|\]$/g, '');
+    if (isPrivateIP(bare)) {
+      throw new Error('目标地址为内网/保留地址，已拦截');
+    }
+    return [bare];
   }
+  // 解析前先拦一次：CNAME / 通配返回内网地址的情况
+  const records = await dns.lookup(hostname, { all: true, verbatim: true });
+  ips = records.map((r) => r.address);
   if (!ips.length) {
     throw new Error('无法解析目标域名');
   }
@@ -117,6 +172,7 @@ async function assertSafeUrl(u) {
       throw new Error('目标地址为内网/保留地址，已拦截');
     }
   }
+  return ips;
 }
 
 // 根据 Content-Type 反推扩展名；必要时用魔数嗅探兜底
@@ -140,11 +196,22 @@ function resolveImageType(contentType, firstChunk) {
 async function fetchFollowingRedirects(urlObj, maxRedirects) {
   let current = urlObj;
   for (let i = 0; i <= maxRedirects; i++) {
-    await assertSafeUrl(current);
+    const pinnedIps = await assertSafeUrl(current);
+    // 从已校验的 IP 列表中取第一个作为本次连接目标。
+    // 通过 fetch 的 lookup 钩子钉住它，避免 fetch 再次解析 DNS 造成 rebinding 绕过。
+    const pinned = pinnedIps[0];
+    const family = isIPv4Literal(pinned) ? 4 : 6;
     const res = await fetch(current.href, {
       redirect: 'manual',
       headers: { 'User-Agent': 'Mozilla/5.0 (roblox-image-proxy)' },
       signal: AbortSignal.timeout(15000),
+      lookup: (hostname, opts, callback) => {
+        if (family === 4) {
+          callback(null, pinned, 4);
+        } else {
+          callback(null, pinned, 6);
+        }
+      },
     });
     if (res.status >= 300 && res.status < 400 && res.headers.get('location')) {
       current = new URL(res.headers.get('location'), current);
