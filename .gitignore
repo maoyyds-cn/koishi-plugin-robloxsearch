@@ -1,1 +1,6 @@
 /node_modules
+
+# 图床代理服务的本地配置（含 AUTH_TOKEN 等敏感信息，不要提交）
+web/.env
+web/.env.*
+!.env.example

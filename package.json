@@ -15,6 +15,9 @@
     "type": "git",
     "url": "git+https://github.com/maoyyds-cn/koishi-plugin-robloxsearch.git"
   },
+  "scripts": {
+    "test": "node --test tests/*.test.js && node ledger-regression.test.cjs"
+  },
   "contributors": [
     "maoyyds-cn <admin@maoyyds.cn>"
   ],
